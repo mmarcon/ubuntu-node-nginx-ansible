@@ -1,0 +1,50 @@
+---
+- hosts: all
+  sudo: yes
+  vars:
+    nodejs_version: 0.12
+    nodejs_packages:
+      - grunt-cli
+      - pm2
+  pre_tasks:
+    - name: create apps group
+      group: name=apps state=present
+    - name: create apps user
+      user: name=apps comment="Apps User" group=apps home=/var/apps
+    - name: create node apps directory
+      file: path=/var/apps state=directory owner=apps group=apps mode=0775
+    - name: copy node app to apps directory
+      copy: src=./app.js dest=/var/apps owner=apps group=apps mode=0644
+  roles:
+    - franklinkim.nodejs
+  tasks:
+    - name: install nginx
+      apt: name=nginx state=present update_cache=yes
+      notify:
+        - start nginx
+    - name: configure nginx
+      copy: src=./nginx/default dest=/etc/nginx/sites-available/default
+      notify:
+        - restart nginx
+    - name: stop node apps
+      command: pm2 delete all
+      become: yes
+      become_user: apps
+      ignore_errors: yes
+    - name: start node app
+      command: pm2 start /var/apps/app.js
+      become: yes
+      become_user: apps
+    - name: installing startup script
+      command: pm2 startup ubuntu -u apps
+      environment:
+        HOME: /var/apps
+      notify:
+        - start pm2
+  handlers:
+    - name: start nginx
+      service: name=nginx state=started
+    - name: restart nginx
+      service: name=nginx state=restarted
+    - name: start pm2
+      service: name=pm2-init.sh state=started
