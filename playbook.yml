@@ -2,16 +2,20 @@
 - hosts: all
   sudo: yes
   vars:
-    ### list of apps to be managed by pm2
+    # list of apps to be managed by pm2
     pm2_apps:
       - /var/apps/services/app.js
       - /var/apps/services/otherapp.js
 
-    ### franklinkim.nodejs
+    # franklinkim.nodejs
     nodejs_version: 0.12
     nodejs_packages:
       - pm2
 
+    # keymetrics configuration
+    # tries keymetrics/vars.yml first
+    # and if it is not there uses keymetrics/vars.default.yml
+    # https://github.com/ansible/ansible/issues/8881#issuecomment-56215518
     keymetrics_var_files: ["./keymetrics/vars.yml", "./keymetrics/vars.default.yml"]
 
   roles:
