@@ -1,0 +1,5 @@
+---
+### keymetrics configuration
+keymetrics: no
+keymetrics_public_key:
+keymetrics_secret_key:

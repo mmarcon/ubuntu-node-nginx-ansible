@@ -7,15 +7,12 @@
       - /var/apps/services/app.js
       - /var/apps/services/otherapp.js
 
-    ### keeymatrics configuration
-    keymetrics: no
-    keymetrics_public_key:
-    keymetrics_secret_key:
-
     ### franklinkim.nodejs
     nodejs_version: 0.12
     nodejs_packages:
       - pm2
+
+    keymetrics_var_files: ["./keymetrics/vars.yml", "./keymetrics/vars.default.yml"]
 
   roles:
     - franklinkim.nodejs
@@ -46,6 +43,8 @@
       become: yes
       become_user: apps
       ignore_errors: yes
+    - include_vars: "{{item}}"
+      with_first_found: keymetrics_var_files
     - name: link to Keymetrics
       command: pm2 link {{ keymetrics_secret_key }} {{ keymetrics_public_key }}
       when: keymetrics
