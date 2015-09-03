@@ -2,10 +2,24 @@
 - hosts: all
   sudo: yes
   vars:
+    ### list of apps to be managed by pm2
+    pm2_apps:
+      - /var/apps/services/app.js
+      - /var/apps/services/otherapp.js
+
+    ### keeymatrics configuration
+    keymetrics: no
+    keymetrics_public_key:
+    keymetrics_secret_key:
+
+    ### franklinkim.nodejs
     nodejs_version: 0.12
     nodejs_packages:
-      - grunt-cli
       - pm2
+
+  roles:
+    - franklinkim.nodejs
+
   pre_tasks:
     - name: create apps group
       group: name=apps state=present
@@ -14,16 +28,17 @@
     - name: create node apps directory
       file: path=/var/apps state=directory owner=apps group=apps mode=0775
     - name: copy node app to apps directory
-      copy: src=./app.js dest=/var/apps owner=apps group=apps mode=0644
-  roles:
-    - franklinkim.nodejs
+      copy: src=./services dest=/var/apps owner=apps group=apps mode=0644
+
   tasks:
     - name: install nginx
       apt: name=nginx state=present update_cache=yes
       notify:
         - start nginx
     - name: configure nginx
-      copy: src=./nginx/default dest=/etc/nginx/sites-available/default
+      copy: src={{ item }} dest=/etc/nginx/sites-available/
+      with_fileglob:
+        - ./nginx/*
       notify:
         - restart nginx
     - name: stop node apps
@@ -31,16 +46,24 @@
       become: yes
       become_user: apps
       ignore_errors: yes
-    - name: start node app
-      command: pm2 start /var/apps/app.js
+    - name: link to Keymetrics
+      command: pm2 link {{ keymetrics_secret_key }} {{ keymetrics_public_key }}
+      when: keymetrics
       become: yes
       become_user: apps
+      ignore_errors: yes
+    - name: start node app
+      command: pm2 start {{ item }}
+      become: yes
+      become_user: apps
+      with_items: pm2_apps
     - name: installing startup script
       command: pm2 startup ubuntu -u apps
       environment:
         HOME: /var/apps
       notify:
         - start pm2
+
   handlers:
     - name: start nginx
       service: name=nginx state=started
