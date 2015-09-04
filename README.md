@@ -6,7 +6,9 @@ Nginx is in front of the node.js apps and acts as a reverse proxy.
 
 The Ansible playbook deploys the setup to an Ubuntu host.
 
-This setup can be used for development via Vagrant. Next step will be to test the deployment to DigitalOcean.
+This setup can be used for development via Vagrant.
+
+Via Vagrant it is also possible to deploy the same setup to [Digital Ocean](http://digitalocean.com)
 
 ## Setup
 
@@ -38,3 +40,9 @@ Copy `keymetrics/vars.default.yml` to `keymetrics/vars.yml` and replace the cont
     keymetrics_secret_key: YourKeymetricsSecretKey
 
 and you will also see the dashboard with both apps in [Keymetrics](https://keymetrics.io/).
+
+## Deploy to Digital Ocean
+
+ * install the [Digital Ocean plugin](https://github.com/smdahlen/vagrant-digitalocean) for Vagrant: `vagrant plugin install vagrant-digitalocean`
+ * copy `digitalocean/config.default.yml` to `digitalocean/config.yml` and edit it to add your token (it is also possible to tweak the other settings for the droplet)
+ * run `vagrant up --provider=digital_ocean` and wait for your droplet to be created
