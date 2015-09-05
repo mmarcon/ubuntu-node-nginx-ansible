@@ -46,3 +46,7 @@ and you will also see the dashboard with both apps in [Keymetrics](https://keyme
  * install the [Digital Ocean plugin](https://github.com/smdahlen/vagrant-digitalocean) for Vagrant: `vagrant plugin install vagrant-digitalocean`
  * copy `digitalocean/config.default.yml` to `digitalocean/config.yml` and edit it to add your token (it is also possible to tweak the other settings for the droplet)
  * run `vagrant up --provider=digital_ocean` and wait for your droplet to be created
+
+### More information
+
+A detailed explanation about most of this is available [on Medium](https://medium.com/@mmarcon/devops-for-your-next-node-js-project-8dccaaf620d1).
